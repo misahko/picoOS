@@ -1,15 +1,14 @@
 #include "display.h"
 #include "i2c.h"
 
-uint8_t frameBuffer[1025];
+uint8_t frameBuffer[1024];
 uint8_t minX = 128;
 uint8_t maxX = 0;
 uint8_t minPage = 8;
 uint8_t maxPage = 0;
 
 void displayInit(void) {
-    frameBuffer[0] = 0x40;
-    for (int i = 1; i < 1025; i++) frameBuffer[i] = 0;
+    for (int i = 0; i < 1024; i++) frameBuffer[i] = 0;
     uint8_t init_cmds[] = {
         0x00,       // Control Byte: далі йдуть КОМАНДИ
         0xAE,       // Display OFF (вимикаємо екран на час налаштування)
@@ -22,7 +21,7 @@ void displayInit(void) {
         0xA1,       // Розворот по X (щоб текст не був дзеркальним)
         0xC8,       // Розворот по Y (щоб екран не був догори дригом)
         0xDA, 0x12, // Налаштування апаратних пінів COM
-        0x81, 0xCF, // Контрастність (яскравість)
+        0x81, 0x7F, // Контрастність (яскравість)
         0xD9, 0xF1, // Pre-charge period (покращує чіткість)
         0xDB, 0x40, // VCOMH deselect level
         0xA4,       // Виводити дані з RAM пам'яті
@@ -34,7 +33,11 @@ void displayInit(void) {
 }
 
 void displayClear(void) {
-    for (int i = 1; i < 1025; i++) {
+    minPage = 0;
+    maxPage = 7;
+    minX = 0;
+    maxX = 127;
+    for (int i = 0; i < 1024; i++) {
         frameBuffer[i] = 0x00;
     }
     updateDisplay();
@@ -59,8 +62,9 @@ void setPixel(int x, int y, int color)
     if (y/8 < minPage) minPage = y/8;
     if (y/8 > maxPage) maxPage = y/8;
 
-    if (color) frameBuffer[(y/8)*128 + x] |= (color << (y%8));
-    else frameBuffer[(y/8)*128 + x] &= ~(1 << (y % 8));
+    int index = (y/8)*128 + x;
+    if (color) frameBuffer[index] |= (1 << (y % 8));
+    else frameBuffer[index] &= ~(1 << (y % 8));
 }
 
 void drawVectorH(int x0, int y0, int x1, int y1,int color)
@@ -140,16 +144,76 @@ void drawVector(int x0, int y0, int x1, int y1,int color)
     }
 }
 
-void drawRectangle(int x0, int y0, int x1, int y1,int color)
+void drawChar(int x, int y,char c)
 {
-    drawVectorH(x0,y0,x1,y0,color);
-    drawVectorH(x0,y1,x1,y1,color);
-    drawVectorV(x0,y0,x0,y1,color);
-    drawVectorV(x1,y0,x1,y1,color);
+    if (x < 0 || x >= 128 || y < 0 || y >= 64) return;
+
+    if (x < minX) minX = x;
+    if (x+4 > maxX) maxX = x+4 > 127 ? 127 : x+4;
+
+    if (y/8 < minPage) minPage = y/8;
+    if ((y+5)/8 > maxPage) maxPage = ((y+5)/8 > 7 ? 7 : (y+5)/8);
+
+    int shift = y%8;
+    int page = y/8;
+
+    if (shift > 3)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            if (x + i >= 128) break;
+            frameBuffer[x + i + page*128] |= (FONT_DATA[(c - 0x20) * 3 + i] << shift);
+            if (page < 7 )frameBuffer[x + i + page*128+128] |= (FONT_DATA[(c - 0x20) * 3 + i] >> (8- shift));
+        }
+    }
+    else for (int i = 0; i < 3; i++) 
+    {
+        if (x + i >= 128) break;
+        frameBuffer[x + i + (y/8)*128] |= (FONT_DATA[(c - 0x20) * 3 + i] << shift);
+    }
+}
+
+void drawStr(int x, int y, char str[])
+{
+    int i = 0;
+    while (str[i] != '\0')
+    {
+        drawChar(x + (i * 4),y,str[i++]);
+    }
+}
+
+void drawRectangle(int x0, int y0, int w, int h,int color)
+{
+    drawVectorH(x0,y0,x0 + w,y0,color);
+    drawVectorH(x0,y0 + h,x0 + w,y0 + h,color);
+    drawVectorV(x0,y0,x0,y0 + h,color);
+    drawVectorV(x0 + w,y0,x0 + w,y0 + h,color);
 }
 
 void updateDisplay(void)
 {
     if (minX > maxX) return;
-    i2cSend(DISPLAY_ADDR, frameBuffer, sizeof(frameBuffer));
+
+    i2cSend(DISPLAY_ADDR, (uint8_t []){0x00,0x21,minX,maxX,0x22,minPage,maxPage}, 7);
+
+    int totalBytes = (maxX - minX + 1) * (maxPage - minPage + 1) + 1;
+
+    static uint8_t cmdToSend[1025];
+    cmdToSend[0] = 0x40;
+
+    int index = 1;
+    for (int i = minPage; i <= maxPage; i++)
+    {
+        for (int j = minX; j <= maxX; j++)
+        {
+            cmdToSend[index++] = frameBuffer[j + i*128]; 
+        }
+    }
+    
+    i2cSend(DISPLAY_ADDR, cmdToSend, totalBytes);
+
+    minX = 128;
+    maxX = 0;
+    minPage = 8;
+    maxPage = 0;
 }

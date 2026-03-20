@@ -10,18 +10,29 @@ void main(void)
     
     // 1. Змиваємо стартове сміття! Екран стане ідеально чорним.
     displayClear(); 
-    
+
+    /*
+    drawStr(0,0,"< 11x");
+    drawStr(127 - 4*4,0,"9x >");
+    drawStr(56,0,"pico");
+    drawVector(0,6,127,6,1);
+    updateDisplay();
+    */
+
     int color = 1;
+    
     while (1) {
-        for (int i = 1; i < 120;i += 5)
-        {
-            drawVector(1 + i,30 + i/2,30 + i,30 + i/2,color);
-            drawVector(1 + i,30 + i/2,15 + i,1 + i/2,color);
-            drawVector(16 + i,1 + i/2,30+ i,30 + i/2,color);
+        for (int i = 0; i < 128; i++)
+        { 
+            drawVector(i,0,127-i,63,color);
             updateDisplay();
-            //delay();
         }
-        color = (color == 1 ? 0 : 1);
-        
+
+        for (int i = 63; i >= 0;i++)
+        {
+            drawVector(0,i,127,63-i,color);
+            updateDisplay();
+        }
+        color = color == 1 ? 0 : 1;
     }
 }

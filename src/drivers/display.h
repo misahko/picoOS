@@ -8,7 +8,7 @@
 #define FONT_CHAR_HEIGHT 5
 #define FONT_CHAR_WIDTH 3
 
-static const unsigned char fontData[] = {
+static const unsigned char FONT_DATA[] = {
         0x00,0x00,0x00,
 		0x00,0x17,0x00,
 		0x03,0x00,0x03,
@@ -114,6 +114,7 @@ void setCursor(uint8_t x, uint8_t page);
 void updateDisplay(void);
 
 void drawChar(int x, int y, char c);
+void drawStr(int x, int y, char str[]);
 void drawVector(int x0, int y0, int x1, int y1, int color);
 void drawRectangle(int x0, int y0, int x1, int y1, int color);
 
