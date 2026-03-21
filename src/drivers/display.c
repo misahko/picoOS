@@ -190,6 +190,7 @@ void drawRectangle(int x0, int y0, int w, int h,int color)
     drawVectorV(x0 + w,y0,x0 + w,y0 + h,color);
 }
 
+
 void updateDisplay(void)
 {
     if (minX > maxX) return;

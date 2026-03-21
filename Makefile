@@ -12,7 +12,7 @@ SRCS = $(wildcard ./src/*.c) \
 all:
 	mkdir -p ./bin
 	# Тепер компілятор бере весь список $(SRCS) автоматично!
-	$(CC) $(CFLAGS) $(SRCS) -o ./bin/firmware.elf
+	$(CC) $(CFLAGS) $(SRCS) -o ./bin/firmware.elf	-lm
 	arm-none-eabi-objcopy -O binary ./bin/firmware.elf ./bin/firmware.bin
 	picotool uf2 convert ./bin/firmware.elf ./bin/firmware.uf2	--family	rp2040
 	@echo "Збірка успішна! Файл firmware.uf2 готовий у папці ./bin/"
