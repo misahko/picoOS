@@ -17,14 +17,15 @@ void i2cInit(void)
 
     I2C->ENABLE = 0;
 
-    I2C->CON = 0x65;
-    I2C->SS_SCL_HCNT = 6;
-    I2C->SS_SCL_LCNT = 13;
+    I2C->CON = 0x63;
+    I2C->SS_SCL_HCNT = 600;
+    I2C->SS_SCL_LCNT = 600;
     I2C->ENABLE = 1;
 }
 
 void i2cSend(uint8_t target, const uint8_t *data, int length)
 {
+    __asm volatile ("cpsid i");
     I2C->ENABLE = 0;
     I2C->TAR = target;
     I2C->ENABLE = 1;
@@ -49,4 +50,5 @@ void i2cSend(uint8_t target, const uint8_t *data, int length)
             return;
         }
     }
+    __asm volatile ("cpsie i");
 }

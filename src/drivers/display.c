@@ -38,7 +38,7 @@ void displayClear(void) {
     minX = 0;
     maxX = 127;
     for (int i = 0; i < 1024; i++) {
-        frameBuffer[i] = 0x00;
+        frameBuffer[i] = 0xff;
     }
     updateDisplay();
 }

@@ -1,5 +1,3 @@
-// Padded and checksummed version of: /home/misahko/ownOS/pico/pico-sdk/build/src/rp2040/boot_stage2/bs2_default.bin
-
 .cpu cortex-m0plus
 .thumb
 

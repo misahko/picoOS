@@ -6,7 +6,9 @@ CFLAGS = -mcpu=cortex-m0plus -mthumb -nostartfiles -T linker.ld -I.
 # Знак \ дозволяє перенести рядок для краси.
 SRCS = $(wildcard ./src/*.c) \
        $(wildcard ./src/drivers/*.c) \
-       $(wildcard ./src/*.S)
+       $(wildcard ./src/*.S) \
+	   $(wildcard ./src/core/*.S) \
+	   $(wildcard ./src/core/*c)
 
 # Створюємо папку bin, якщо її ще немає
 all:

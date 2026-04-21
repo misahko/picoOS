@@ -12,6 +12,7 @@ typedef struct
 } RESETS_TypeDef;
 #define RESETS ((RESETS_TypeDef *) RESETS_BASE)
 
+// set pin function or read pin(status)
 #define IO_BANK_BASE 0x40014000
 typedef struct
 {
@@ -20,6 +21,7 @@ typedef struct
 } GPIO_TypeDef;
 #define GPIO ((GPIO_TypeDef *) IO_BANK_BASE)
 
+// somes manipulation to pins
 #define SIO_BASE 0xd0000000
 typedef struct
 {
@@ -39,12 +41,10 @@ typedef struct
 #define SIO ((SIO_TypeDef *) SIO_BASE)
 
 #define PADS_BANK0_BASE 0x4001c000
-
 typedef struct {
     volatile uint32_t VOLTAGE_SELECT; // Загальний для блоку
     volatile uint32_t PIN[30];       // Регістри для кожної ніжки
 } PADS_BANK0_TypeDef;
-
 #define PADS_BANK0 ((PADS_BANK0_TypeDef *) PADS_BANK0_BASE)
 
 #endif

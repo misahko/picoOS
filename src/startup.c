@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include "./drivers/rp2040.h"
 
 extern uint32_t _sdata;
 extern uint32_t _edata;
@@ -11,13 +12,14 @@ extern uint32_t _estack;
 
 extern void main(void);
 extern void Reset_Handler(void);
-extern void HardFault_Handler(void);
-
-void HardFault_Handler(void) {
-    while(1) {
-       
+void HardFault_Handler(void) { 
+    SIO->GPIO_OUT_SET = (1 << 25);
+    while (1) {
+        // Процесор зупиняється тут назавжди
     }
 }
+extern void PendSV_Handler(void);
+extern void SysTick_Handler(void);
 
 // Атрибут змушує компілятор покласти цей масив у секцію ".is_vector"
 __attribute__((section(".isr_vector"),used, aligned(256)))
@@ -34,8 +36,8 @@ void (*const vector_table[])(void) = {
     0, // 11: SVCall
     0, // 12: Debug Monitor
     0, // 13: Резерв
-    0, // 14: PendSV
-    0  // 15: SysTick
+    PendSV_Handler, // 14: PendSV
+    SysTick_Handler  // 15: SysTick
 };
 
 
