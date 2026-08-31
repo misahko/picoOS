@@ -38,12 +38,12 @@ void main(void)
     // УВІМКНУТИ світлодіод і зависнути
     //SIO->GPIO_OUT_SET = (1 << 25);
 
-    i2cInit();
-    for (volatile int i = 0; i < 100000; i++); // Маленька пауза
-displayInit();
-for (volatile int i = 0; i < 100000; i++);
-    displayClear();
+    //i2cInit();
+    //for (volatile int i = 0; i < 100000; i++); // Маленька пауза
+    //displayInit();
+    for (volatile int i = 0; i < 100000; i++);
+    //displayClear();
     initTask(blink,3,SMALL);
-    initTask(print,3,MEDIUM);
+    //initTask(print,3,MEDIUM);
     coreInit();
 }

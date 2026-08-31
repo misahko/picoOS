@@ -21,7 +21,7 @@ all:
 
 flash: all
 	@echo "Копіюю на Raspberry Pi Pico..."
-	cp ./bin/firmware.uf2 /media/$(USER)/RPI-RP2/
+	sudo picotool load ./bin/firmware.uf2 -x
 	@echo "Прошито!"
 
 clean:
